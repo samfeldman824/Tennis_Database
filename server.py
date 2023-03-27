@@ -22,6 +22,7 @@ app.route("/players", methods=["GET"])(get_all_players)
 
 app.route("/players/<name>", methods=["POST"])(create_player)
 app.route("/matches/<winner>/<loser>/<sets>/<score>", methods=["POST"])(add_match)
+app.route("/matches/<filepath>", methods=["POST"])(add_match_from_csv)
 
 
 app.route("/players/<id>", methods=["PATCH"])(update_match)

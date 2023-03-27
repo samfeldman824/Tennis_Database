@@ -5,6 +5,7 @@ from flask import Response, request
 import json
 from bson.objectid import ObjectId
 import pymongo
+import csv
 
 try:
     mongo = pymongo.MongoClient(
@@ -147,6 +148,39 @@ def add_match(winner, loser, sets, score):
             status=500,
             mimetype="application/json"
         )
+
+def add_match_from_csv(filepath):
+    try:
+        print(filepath)
+        with open(filepath, newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            print("file read in")
+            
+            new_match = {}
+        
+            for row in reader:
+                new_match = {**new_match, **row}
+            
+            winner = new_match['Winner']#.replace(" ", "%20")
+            loser = new_match['Loser']#.replace(" ", "%20")
+            n_sets = new_match['Number of Sets']
+            score = new_match['Score']
+
+            add_match(winner, loser, n_sets, score)
+            return Response(
+            response= json.dumps(
+            {"message": "match read"}),
+            status=200,
+            mimetype="application/json"
+        )
+    except Exception as ex:
+        return Response(
+            response= json.dumps(
+            {"message": "match not read"}),
+            status=500,
+            mimetype="application/json"
+        )
+
 
 def update_match(id):
     try:
