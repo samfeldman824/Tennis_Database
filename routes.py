@@ -151,19 +151,8 @@ def add_match(winner, loser, sets, score):
             mimetype="application/json"
         )
 
+# function to parse csv file with match data
 def add_match_from_csv(filepath):
-    # try:
-    #     # filepath = "/" + filepath
-    #     filepath = os.path.abspath(filepath)
-    #     print(filepath)
-    #     with open(filepath, newline='') as csvfile:
-    #         reader = csv.DictReader(csvfile)
-    #         print("file read in")
-            
-    #         new_match = {}
-        
-    #         for row in reader:
-    #             new_match = {**new_match, **row}
     file_found = False
     try:
         try:
@@ -242,16 +231,17 @@ def add_match_from_csv(filepath):
             mimetype="application/json"
         )
 
-
-def update_match(id):
+# function to update a current player name
+def update_name(id):
     try:
-        dbResponse = db.Matches.update_one(
+        name = request.form["Name"]
+        dbResponse = db.player_stats.update_one(
             {"_id":ObjectId(id)},
-            {"$set":{"Player 1": request.form["Player 1"]}}
+            {"$set":{"Name": name}}
         )
         if dbResponse.modified_count == 1:
             return Response(
-                response= json.dumps({"message": "user updated"}),
+                response= json.dumps({"message": "player name updated", "name": f"{name}"}),
                 status=200,
                 mimetype="application/json"
         )
@@ -269,12 +259,13 @@ def update_match(id):
             mimetype="application/json"
         )
 
-def delete_user(id):
+# function to delete player given id
+def delete_player_id(id):
     try:
         dbResponse = db.Matches.delete_one({"_id":ObjectId(id)})
         if dbResponse.deleted_count == 1:
             return Response(
-                response= json.dumps({"message": "user deleted"}),
+                response= json.dumps({"message": "player deleted"}),
                 status=200,
                 mimetype="application/json"
             )
@@ -283,7 +274,27 @@ def delete_user(id):
     except Exception as ex:
         print(ex)
         return Response(
-            response= json.dumps({"message": "user not deleted"}),
+            response= json.dumps({"message": "player not deleted"}),
+            status=500,
+            mimetype="application/json"
+        )
+
+# function to delete player given name
+def delete_player_name(name):
+    try:
+        dbResponse = db.player_stats.delete_one({"Name": {"$regex": f"^{name}$", "$options": "i"}})
+        if dbResponse.deleted_count == 1:
+            return Response(
+                response= json.dumps({"message": "player deleted", "name": f"{name}"}),
+                status=200,
+                mimetype="application/json"
+            )
+
+
+    except Exception as ex:
+        print(ex)
+        return Response(
+            response= json.dumps({"message": "player not deleted"}),
             status=500,
             mimetype="application/json"
         )

@@ -20,14 +20,15 @@ app = Flask(__name__)
 app.route("/players", methods=["GET"])(get_all_players)
 
 
-app.route("/players/<name>", methods=["POST"])(create_player)
-app.route("/matches/<winner>/<loser>/<sets>/<score>", methods=["POST"])(add_match)
-app.route("/matches/<path:filepath>", methods=["POST"])(add_match_from_csv)
+app.route("/players/create_player/<name>", methods=["POST"])(create_player)
+app.route("/matches/add_match/<winner>/<loser>/<sets>/<score>", methods=["POST"])(add_match)
+app.route("/matches/add_csv/<path:filepath>", methods=["POST"])(add_match_from_csv)
 
 
-app.route("/players/<id>", methods=["PATCH"])(update_match)
+app.route("/players/update/name/<id>", methods=["PATCH"])(update_name)
 
-app.route("/players/<id>", methods=["DELETE"])(delete_user)
+app.route("/players/delete/id/<id>", methods=["DELETE"])(delete_player_id)
+app.route("/players/delete/name/<name>", methods=["DELETE"])(delete_player_name)
 
 
 if __name__ == "__main__":
