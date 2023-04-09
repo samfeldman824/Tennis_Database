@@ -30,6 +30,7 @@ shot_dictionary = {
 string1 = "6b3b1f3b2f2f1f3b3b3s3b3b3b3s3b1f2b3s2f1n@"
 string2 = "7b3b2f4s2s3v3o5z2f4d@"
 shots_list = ["f", "b", "r", "s", "v", "z", "o"]
+players = ['Sam', 'Roger']
 
 def parse_point(point: str, shots_list: list) -> list:
     substrings = []
@@ -67,11 +68,16 @@ def parse_point(point: str, shots_list: list) -> list:
 
 # print(parse_point(my_string, shots_list))  # Output: ['f3d@', 'b3n']
 
-def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: list):
+def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: list, server: str):
     headers = ['Shot Type', 'Shot Direction', 'Rally Ending', 'Location', 'Return', 'Player']
     df = pd.DataFrame(columns=headers)
 
     table_i = 0
+
+    if players[0] != server:
+        players[0] = players[1]
+        players[1] = server
+
     for index, shot in enumerate(shots):
         if index % 2 == 0:
             df.at[table_i, 'Player'] = players[0]
@@ -107,32 +113,24 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
     return df
     # print(df)
 
-def parse_match(filepath: str):
+def parse_match(filepath: str, players: list):
     match_df = pd.DataFrame()
     df = pd.read_csv(filepath)
-    
-
-    for index, row in df.iterrows():
+    for index, row in df[["Server", "1st", "2nd"]].iterrows():
         point_df = pd.DataFrame()
         point_df2 = pd.DataFrame()
-        first_serve = str(row.values.tolist()[0])
+        server = str(row.values.tolist()[0])
+        first_serve = str(row.values.tolist()[1])
         shots = parse_point(first_serve, shots_list)
-        point_df = parse_shots(shots, shot_dictionary, 'first', ['Sam', 'Roger'])
-        second_serve = str(row.values.tolist()[1])
+        point_df = parse_shots(shots, shot_dictionary, 'first', players, server)
+        second_serve = str(row.values.tolist()[2])
         if second_serve != 'nan':
             shots = parse_point(second_serve, shots_list)
-            point_df2 = parse_shots(shots, shot_dictionary, 'second', ['Sam', 'Roger'])
+            point_df2 = parse_shots(shots, shot_dictionary, 'second', players, server)
         
         point_df = pd.concat([point_df, point_df2], axis=0)
         point_df = point_df.reset_index(drop=True)
         match_df = pd.concat([match_df, point_df], axis=0)
-    return match_df
-
-    for i, value in df['Points'].items():
-        shots = parse_point(value, shots_list)
-        point_df = parse_shots(shots, shot_dictionary, ['Sam Feldman', 'Roger Chou'])
-        match_df = pd.concat([match_df, point_df], axis=0)
-    match_df = match_df.reset_index(drop=True)
     return match_df
 
 # match_df = parse_match('/Users/samfeldman/Desktop/Tennis_Database/points_sheet.csv')
@@ -152,6 +150,6 @@ def parse_match(filepath: str):
 
 # print(parse_point("7w*f4b2s4", shots_list))
 # print(parse_point("7n", shots_list))
-match_df = parse_match('./match2.csv')
+match_df = parse_match('./csvs/match2.csv', players)
 print(match_df)
 # print(parse_point("7b3f3b2s3f3*", shots_list))
