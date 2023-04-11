@@ -51,6 +51,26 @@ def parse_point(point: str, shots_list: list) -> list:
         list: A list of substrings extracted from the point string.
     """
     
+    # Input validation checks
+
+    # checking point
+    if not isinstance(point, str):
+        raise TypeError("point must be a string")
+    
+    if len(point) == 0:
+        raise ValueError("point can't be empty")
+
+    if point[0] not in ['6', '7', '8']:
+        raise ValueError("First character in point must be a serve direction")
+
+    # checking shots_list
+    if not isinstance(shots_list, list):
+        raise TypeError("shots_list must be a list")
+    
+    for char in shots_list:
+        if not isinstance(char, str):
+            raise TypeError("Each shot in shots_list must be a string")
+
     substrings = []
     current_substring = ""
 
@@ -84,7 +104,7 @@ def parse_point(point: str, shots_list: list) -> list:
     else:
         return [point]
 
-def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: list, server: str, score: str) -> pd.DataFrame():
+def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: list, server: str, score: str) -> pd.DataFrame:
     """
     Parses each shot and adds the corresponding details to a Pandas Dataframe
 
@@ -97,10 +117,36 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
         score (str): Score at beginning of point
 
     Returns:
-        pd.Dataframe(): A dataframe containing each shot and corresponding details
+        pd.Dataframe: A dataframe containing each shot and corresponding details
 
     """
 
+    if not isinstance(shots, list):
+        raise TypeError("shots must be a list")
+    
+    if len(shots) == 0:
+        raise ValueError("shots can't be empty")
+
+    if not isinstance(shot_options, dict):
+        raise TypeError("shot_options must be a dict")
+    
+    if not isinstance(first_or_second, str):
+        raise TypeError("first_or_second must be a string")
+    
+    if not isinstance(players, list):
+        raise TypeError("players must be a list")
+    
+    if len(players) != 2:
+        raise ValueError("players must contain exactly 2 elements")
+
+    if not isinstance(server, str):
+        raise TypeError("server must be a string")
+    
+    if server not in players:
+        raise ValueError("server must be one of the players")
+    
+    if not isinstance(score, str):
+        raise TypeError("score must be a string")
 
     # Header names for df
     headers = ['Shot Type', 'Shot Direction', 'Rally Ending', 'Location', 'Return', 'Player', 'Score']
@@ -123,7 +169,10 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
         # If first shot of point, it is a serve
         if index == 0:
             serve = shot[0]
-            mapped_serve = shot_options[serve]
+            try:
+                mapped_serve = shot_options[serve]
+            except:
+                raise KeyError("char not in shot_dict")
             df.at[table_i, 'Shot Direction'] = mapped_serve[1]
             df.at[table_i, 'Shot Type'] = first_or_second + ' serve'
             if first_or_second == 'first':
@@ -142,7 +191,10 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
         # Map each character to a stat of the shot
         i = 0
         while i < len(shot):
-            char = shot[i]
+            try:
+                char = shot[i]
+            except:
+                raise KeyError("char not in shot_dict")
             mapped_char = shot_options[char]
             column = mapped_char[0]
             stat = mapped_char[1]
@@ -201,4 +253,4 @@ def parse_match(filepath: str):
     return match_df # Return the final parsed match data DataFrame
 
 match_df = parse_match('./csvs/corey.csv')
-print(match_df)
+# print(match_df)
