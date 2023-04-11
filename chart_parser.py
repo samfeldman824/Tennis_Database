@@ -9,6 +9,10 @@ shot_dictionary = {
     "o": ["Shot Type", "fh volley"],
     "p": ["Shot Type", "bh volley"],
     "l": ["Shot Type", "overhead"],
+    "n": ["Shot Type", "fh dropshot"],
+    "m": ["Shot Type", "bh dropshot"],
+    "g": ["Shot Type", "fh lob"],
+    "h": ["Shot Type", "bh lob"],
     "*": ["Rally Ending", "Winner"],
     "@": ["Rally Ending", "Unforced Error"],
     "#": ["Rally Ending", "Forced Error"],
@@ -29,7 +33,7 @@ shot_dictionary = {
 
 string1 = "6b3b1f3b2f2f1f3b3b3s3b3b3b3s3b1f2b3s2f1n@"
 string2 = "7b3b2f4s2s3v3o5z2f4d@"
-shots_list = ["j", "k", "u", "i", "o", "p", "l"]
+shots_list = ["j", "k", "u", "i", "o", "p", "l", "n", "m", "g", "h"]
 players = ['Sam Feldman', 'Corey Craig']
 
 def parse_point(point: str, shots_list: list) -> list:
