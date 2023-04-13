@@ -40,7 +40,7 @@ shots_strategy = st.lists(st.text(min_size=2, max_size=4), min_size=2, max_size=
 
 shot_options_strategy = st.dictionaries(keys=st.text(min_size=1, max_size=1), values=st.lists(st.text(min_size=1, max_size=8),min_size=2, max_size=2))
 
-@settings(max_examples=10)
+@settings(max_examples=100)
 @given(shots=shots_strategy)
 def test_parse_shots(shots):
     

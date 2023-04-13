@@ -38,6 +38,27 @@ for key, value in shot_dictionary.items():
     if value[0] == 'Shot Type':
         shots_list.append(key)
 
+def score_side(score: str):
+    score_dict = {
+        '0': 0,
+        '15': 1,
+        '30': 2,
+        '40': 3
+    }
+    if "Deuce" in score:
+        if "Ad" in score:
+            return "Ad"
+        else:
+            return "Deuce"
+    else:
+        server, returner = score.split("-")
+        mapped_server = score_dict[server]
+        mapped_returner = score_dict[returner]
+        score_diff = abs(mapped_server - mapped_returner)
+        if score_diff % 2 == 0:
+            return "Deuce"
+        else:
+            return "Ad"
 
 def parse_point(point: str, shots_list: list) -> list:
     """
@@ -149,7 +170,7 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
         raise TypeError("score must be a string")
 
     # Header names for df
-    headers = ['Shot Type', 'Shot Direction', 'Rally Ending', 'Location', 'Return', 'Player', 'Score']
+    headers = ['Shot Type', 'Shot Direction', 'Rally Ending', 'Location', 'Return', 'Player', 'Score', 'Side']
     df = pd.DataFrame(columns=headers)
 
     table_i = 0
@@ -175,10 +196,9 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
                 raise KeyError("char not in shot_dict")
             df.at[table_i, 'Shot Direction'] = mapped_serve[1]
             df.at[table_i, 'Shot Type'] = first_or_second + ' serve'
-            if first_or_second == 'first':
-                df.at[table_i, 'Score'] = score
-            else:
-                df.at[table_i, 'Score'] = ''
+            df.at[table_i, 'Score'] = score
+            df.at[table_i, 'Side'] = score_side(score)
+            
         else:
             df.at[table_i, 'Score'] = ''
         
@@ -200,11 +220,14 @@ def parse_shots(shots: list, shot_options: dict, first_or_second: str, players: 
             stat = mapped_char[1]
             df.at[table_i, column] = stat
             i += 1
+        
+        
         table_i += 1
 
     # Fill missing values in 'Location' and 'Rally Ending' columns with 'in'
     df['Location'].fillna('in', inplace=True)
     df['Rally Ending'].fillna('in', inplace=True)
+    df['Side'].fillna('', inplace=True)
 
     return df
 
