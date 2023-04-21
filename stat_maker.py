@@ -84,11 +84,6 @@ second_serves_ad_t = second_serves_hit_ad[second_serves_hit_ad['Shot Direction']
 second_serves_ad_body = second_serves_hit_ad[second_serves_hit_ad['Shot Direction'] == 'body']
 second_serves_ad_wide = second_serves_hit_ad[second_serves_hit_ad['Shot Direction'] == 'wide']
 
-second_serves_in = second_serves_hit[second_serves_hit['Location'] == 'in']
-second_serves_t = second_serves_hit[second_serves_hit['Shot Direction'] == 't']
-second_serves_body = second_serves_hit[second_serves_hit['Shot Direction'] == 'body']
-second_serves_wide = second_serves_hit[second_serves_hit['Shot Direction'] == 'wide']
-
 
 serve_directions.at['2nd Serve', 'Hit'] = len(second_serves_hit)
 serve_directions.at['2nd Serve', 'In'] = to_percent(len(second_serves_in), len(second_serves_hit))
@@ -99,11 +94,18 @@ serve_directions.at['2nd Serve', 'T (Ad)'] = to_percent(len(second_serves_ad_t),
 serve_directions.at['2nd Serve', 'Body (Ad)'] = to_percent(len(second_serves_ad_body), len(second_serves_hit_ad))
 serve_directions.at['2nd Serve', 'Wide (Ad)'] = to_percent(len(second_serves_ad_wide), len(second_serves_hit_ad))
 
+server_scores = set(serve_df['Score'].to_list())
+# print(server_scores)
+for score in server_scores:
+    server_score_df = serve_df[serve_df['Score'] == score]
+    if score == '30-30':
+        print(score)
+        print(server_score_df)
 
 # print('second serve percentage is:',second_serve_percentage)
 
-print('test')
-print(serve_directions)
+
+# print(serve_directions)
 
 shot_directions_headers = ['Hit', 'Cross', 'Middle', 'Line', 'Inside-out', 'Inside-in']
 shot_directions_index = ['Forehands', 'Backhands', 'FH Slices', 'BH Slices', 'FH Volleys', 'BH Volleys']

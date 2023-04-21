@@ -2,7 +2,7 @@
 
 import pandas as pd
 import pytest
-from chart_parser import parse_point, parse_shots, shot_dictionary, shots_list
+from chart_parser import parse_point, parse_shots, score_side, shot_dictionary, shots_list
 
 def test_parse_points():
     mock_point1 = '8k2j4j3k2j4j2n#'
@@ -57,6 +57,7 @@ def test_parse_shots():
     expected_df.at[0, 'Return'] = False
     expected_df.at[0, 'Player'] = 'Sam'
     expected_df.at[0, 'Score'] = '15-15'
+    expected_df.at[0, 'Side'] = 'Deuce'
     expected_df.at[1, 'Shot Type'] = 'backhand'
     expected_df.at[1, 'Shot Direction'] = 'middle'
     expected_df.at[1, 'Rally Ending'] = 'in'
@@ -64,6 +65,7 @@ def test_parse_shots():
     expected_df.at[1, 'Return'] = True
     expected_df.at[1, 'Player'] = 'Roger'
     expected_df.at[1, 'Score'] = ''
+    expected_df.at[1, 'Side'] = ''
     expected_df.at[2, 'Shot Type'] = 'forehand'
     expected_df.at[2, 'Shot Direction'] = 'inside-out'
     expected_df.at[2, 'Rally Ending'] = 'Forced Error'
@@ -71,6 +73,8 @@ def test_parse_shots():
     expected_df.at[2, 'Return'] = False
     expected_df.at[2, 'Player'] = 'Sam'
     expected_df.at[2, 'Score'] = ''
+    expected_df.at[2, 'Side'] = ''
+
 
 
     df = parse_shots(mock_shots1, shot_dictionary, 'first', players, server, score)
@@ -85,10 +89,12 @@ def test_parse_shots():
     expected_df1.at[0, 'Location'] = 'net'
     expected_df1.at[0, 'Return'] = False
     expected_df1.at[0, 'Player'] = 'Sam'
-    expected_df1.at[0, 'Score'] = ''
+    expected_df1.at[0, 'Score'] = '15-15'
+    expected_df1.at[0, 'Side'] = 'Deuce'
 
     df1 = parse_shots(mock_shots2, shot_dictionary, 'second', players, server, score)
     
+
     assert isinstance(df1, pd.DataFrame)
     assert df1.equals(expected_df1)
 
@@ -136,3 +142,25 @@ def test_parse_shots():
     with pytest.raises(KeyError) as excinfo:
         assert parse_shots(mock_shots1, {'z': 0}, 'first', players, server, score)
     assert str(excinfo.value) == "'char not in shot_dict'"
+
+test_parse_shots()
+
+def test_score_side():
+
+    assert score_side('0-0') == 'Deuce'
+    assert score_side('15-15') == 'Deuce'
+    assert score_side('30-30') == 'Deuce'
+    assert score_side('30-0') == 'Deuce'
+    assert score_side('0-30') == 'Deuce'
+
+    assert score_side('15-0') == 'Ad'
+    assert score_side('40-0') == 'Ad'
+    assert score_side('0-15') == 'Ad'
+    assert score_side('0-40') == 'Ad'
+
+    assert score_side('Deuce (Deuce Side)') == 'Deuce'
+    assert score_side('Deuce (Ad Side)') == 'Ad'
+
+    # diagnose Sam_Feldman test_depression();
+    # prescribe Sam_Feldman fluoxetine();
+
