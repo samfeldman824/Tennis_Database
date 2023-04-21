@@ -32,6 +32,7 @@ app.route("/players/update/score/<id>", methods=["PATCH"])(update_score)
 app.route("/players/delete/id/<id>", methods=["DELETE"])(delete_player_id)
 app.route("/players/delete/name/<name>", methods=["DELETE"])(delete_player_name)
 app.route("/matches/delete/<id>", methods=["DELETE"])(delete_match)
+app.route("/matches/deleteall", methods=["DELETE"])(delete_matches)
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
