@@ -130,7 +130,8 @@ def add_match(winner, loser, sets, score, advanced_stats_dict={}):
             "Winner": winner,
             "Loser": loser,
             "Number of Sets": int(sets),
-            "Set Scores": json.loads(score)
+            "Set Scores": json.loads(score),
+            "Advanced Stats": {},
             }
         
         # if advanced_stats were given, create variables for each stat
@@ -156,6 +157,30 @@ def add_match(winner, loser, sets, score, advanced_stats_dict={}):
             opponent_double_faults = int(advanced_stats_dict['Opponent Double Faults'])
             first_shot_error_after_serve = int(advanced_stats_dict['First Shot Error after Serve'])
             first_shot_error_after_return = int(advanced_stats_dict['First Shot Error after Return'])
+
+            # Adding advanced stats for whichever player has them
+            new_match['Advanced Stats']['Player'] = player
+            new_match['Advanced Stats']['First Serves In'] = first_serves_in
+            new_match['Advanced Stats']['First Serves Hit'] = first_serves_hit
+            new_match['Advanced Stats']['First Serve Points Won'] = first_serve_points_won
+            new_match['Advanced Stats']['First Serve Points Lost'] = first_serve_points_lost
+            new_match['Advanced Stats']['Second Serves In'] = second_serves_in
+            new_match['Advanced Stats']['Second Serves Hit'] = second_serves_hit
+            new_match['Advanced Stats']['Second Serve Points Won'] = second_serve_points_won
+            new_match['Advanced Stats']['Second Serve Points Played'] = second_serve_points_lost
+            new_match['Advanced Stats']['Game Points Won'] = game_points_won
+            new_match['Advanced Stats']['Game Points Lost'] = game_points_lost
+            new_match['Advanced Stats']['Double Faults'] = double_faults
+            new_match['Advanced Stats']['First Serve Points Won On Return'] = first_serve_points_won_on_return
+            new_match['Advanced Stats']['First Serve Points Lost On Return'] = first_serve_points_lost_on_return
+            new_match['Advanced Stats']['Second Serve Points Won On Return'] = second_serve_points_won_on_return
+            new_match['Advanced Stats']['Second Serve Points Lost On Return'] = second_serve_points_lost_on_return
+            new_match['Advanced Stats']['Break Points Won'] = break_points_won
+            new_match['Advanced Stats']['Break Points Lost'] = break_points_lost
+            new_match['Advanced Stats']['Opponent Double Faults'] = opponent_double_faults
+            new_match['Advanced Stats']['First Shot Error After Serve'] = first_shot_error_after_serve
+            new_match['Advanced Stats']['First Shot Error After Return'] = first_shot_error_after_return
+
 
             # updating player's advanced stats
             db.player_stats.update_one(
@@ -183,7 +208,7 @@ def add_match(winner, loser, sets, score, advanced_stats_dict={}):
             "Advanced Stats.First Shot Error after Serve": first_shot_error_after_serve,
             "Advanced Stats.First Shot Error after Return": first_shot_error_after_return,
             "Advanced Stats.Matches with Advanced Stats": 1
-}
+            }
             }
             )
 
@@ -456,6 +481,60 @@ def update_score(id):
 # function to delete match given id
 def delete_match(id):
     try:
+
+        match_to_delete = db.matches.find_one({"_id":ObjectId(id)})
+
+        player = match_to_delete['Advanced Stats']['Player']
+        first_serves_in = match_to_delete['Advanced Stats']['First Serves In']
+        first_serves_hit = match_to_delete['Advanced Stats']['First Serves Hit']
+        first_serve_points_won = match_to_delete['Advanced Stats']['First Serve Points Won']
+        first_serve_points_lost = match_to_delete['Advanced Stats']['First Serve Points Lost']
+        second_serves_in = match_to_delete['Advanced Stats']['Second Serves In']
+        second_serves_hit = match_to_delete['Advanced Stats']['Second Serves Hit']
+        second_serve_points_won = match_to_delete['Advanced Stats']['Second Serve Points Won']
+        second_serve_points_lost = match_to_delete['Advanced Stats']['Second Serve Points Played']
+        game_points_won = match_to_delete['Advanced Stats']['Game Points Won']
+        game_points_lost = match_to_delete['Advanced Stats']['Game Points Lost']
+        double_faults = match_to_delete['Advanced Stats']['Double Faults']
+        first_serve_points_won_on_return = match_to_delete['Advanced Stats']['First Serve Points Won On Return']
+        first_serve_points_lost_on_return = match_to_delete['Advanced Stats']['First Serve Points Lost On Return']
+        second_serve_points_won_on_return = match_to_delete['Advanced Stats']['Second Serve Points Won On Return']
+        second_serve_points_lost_on_return = match_to_delete['Advanced Stats']['Second Serve Points Lost On Return']
+        break_points_won = match_to_delete['Advanced Stats']['Break Points Won']
+        break_points_lost = match_to_delete['Advanced Stats']['Break Points Lost']
+        opponent_double_faults = match_to_delete['Advanced Stats']['Opponent Double Faults']
+        first_shot_error_after_serve = match_to_delete['Advanced Stats']['First Shot Error After Serve']
+        first_shot_error_after_return = match_to_delete['Advanced Stats']['First Shot Error After Return']
+
+        # removing match stats from player stats
+        db.player_stats.update_one(
+            {"Name": {"$regex": f"^{player}$", "$options": "i"}},
+            {"$inc":
+            {
+            "Advanced Stats.1st Serves In": -first_serves_in,
+            "Advanced Stats.1st Serves Hit": -first_serves_hit,
+            "Advanced Stats.1st Serve Points Won": -first_serve_points_won,
+            "Advanced Stats.1st Serve Points Lost": -first_serve_points_lost,
+            "Advanced Stats.2nd Serves In": -second_serves_in,
+            "Advanced Stats.2nd Serves Hit": -second_serves_hit,
+            "Advanced Stats.2nd Serve Points Won": -second_serve_points_won,
+            "Advanced Stats.2nd Serve Points Lost": -second_serve_points_lost,
+            "Advanced Stats.Game Points Won": -game_points_won,
+            "Advanced Stats.Game Points Lost": -game_points_lost,
+            "Advanced Stats.Double Faults": -double_faults,
+            "Advanced Stats.1st Serve Points Won on Return": -first_serve_points_won_on_return,
+            "Advanced Stats.1st Serve Points Lost on Return": -first_serve_points_lost_on_return,
+            "Advanced Stats.2nd Serve Points Won on Return": -second_serve_points_won_on_return,
+            "Advanced Stats.2nd Serve Points Lost on Return": -second_serve_points_lost_on_return,
+            "Advanced Stats.Break Points Won": -break_points_won,
+            "Advanced Stats.Break Points Lost": -break_points_lost,
+            "Advanced Stats.Opponent Double Faults": -opponent_double_faults,
+            "Advanced Stats.First Shot Error after Serve": -first_shot_error_after_serve,
+            "Advanced Stats.First Shot Error after Return": -first_shot_error_after_return,
+            "Advanced Stats.Matches with Advanced Stats": -1
+            }
+            }
+                                   )
         dbResponse = db.matches.delete_one({"_id":ObjectId(id)})
         if dbResponse.deleted_count == 1:
             return Response(
@@ -463,6 +542,7 @@ def delete_match(id):
                 status=200,
                 mimetype="application/json"
             )
+
 
 
     except Exception as ex:
@@ -513,3 +593,18 @@ def delete_player_name(name):
             mimetype="application/json"
         )
 
+def delete_matches():
+    try:
+        db.matches.delete_many({})
+        return Response(
+                response= json.dumps({"message": "matches deleted"}),
+                status=200,
+                mimetype="application/json"
+            )
+    except Exception as ex:
+        print(ex)
+        return Response(
+            response= json.dumps({"message": "matches not deleted"}),
+            status=500,
+            mimetype="application/json"
+        )
