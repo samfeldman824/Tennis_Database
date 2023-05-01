@@ -1,6 +1,7 @@
 # pylint: disable-all
 
 from flask import Flask
+from flask_cors import CORS
 from routes import *
 
 try:
@@ -16,6 +17,9 @@ except:
 
 
 app = Flask(__name__)
+CORS(app)
+
+app.route("/", methods=["GET"])(original)
 
 app.route("/players", methods=["GET"])(get_all_players)
 app.route("/players/matches/<name>", methods=["GET"])(get_all_player_matches)

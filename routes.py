@@ -19,6 +19,13 @@ try:
 except:
     print("Error -- can't connect")
 
+def original():
+    return Response(
+            response= json.dumps({"message": "sup cuh"}),
+            status=200,
+            mimetype="application/json"
+        )
+
 # function to list all players
 def get_all_players():
     try:
@@ -66,6 +73,20 @@ def get_all_player_matches(name):
 def create_player(name):
     # creating dictionary to represent new player
     
+    player_filter = {"Name": {"$regex": f"^{name}$", "$options": "i"}}
+    data = list(db.player_stats.find(player_filter))
+    if len(data) > 0:
+        return Response(
+            response= json.dumps(
+            {"message": "player already exits",
+            "name": f"{name}"}
+            ),
+            status=200,
+            mimetype="application/json"
+        )
+
+
+
     try:
         new_player = {
             "Name": name,
@@ -388,6 +409,7 @@ def add_match_from_csv(filepath):
 
 # function to update a current player name
 def update_name(id):
+    print("hello")
     try:
         name = request.form["Name"]
         dbResponse = db.player_stats.update_one(
