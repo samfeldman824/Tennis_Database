@@ -73,21 +73,23 @@ def get_all_player_matches(name):
 def create_player(name):
     # creating dictionary to represent new player
     
-    player_filter = {"Name": {"$regex": f"^{name}$", "$options": "i"}}
-    data = list(db.player_stats.find(player_filter))
-    if len(data) > 0:
-        return Response(
-            response= json.dumps(
-            {"message": "player already exits",
-            "name": f"{name}"}
-            ),
-            status=200,
-            mimetype="application/json"
-        )
+    
 
 
 
     try:
+
+        player_filter = {"Name": {"$regex": f"^{name}$", "$options": "i"}}
+        data = list(db.player_stats.find(player_filter))
+        if len(data) > 0:
+            return Response(
+                response= json.dumps(
+                {"message": f"{name} already exists"}
+                ),
+                status=200,
+                mimetype="application/json"
+            )
+
         new_player = {
             "Name": name,
             "Wins": 0,
@@ -126,7 +128,7 @@ def create_player(name):
         print(dbResponse.inserted_id)
         return Response(
             response= json.dumps(
-            {"message": "player created",
+            {"message": f"{name} created",
             "name": f"{name}"}
             ),
             status=200,
@@ -136,7 +138,7 @@ def create_player(name):
         print(ex)
         return Response(
             response= json.dumps(
-            {"message": "user not created",
+            {"message": "Player not created",
             "name": f"{dbResponse.player}"}
             ),
             status=500,
@@ -601,7 +603,7 @@ def delete_player_name(name):
         dbResponse = db.player_stats.delete_one({"Name": {"$regex": f"^{name}$", "$options": "i"}})
         if dbResponse.deleted_count == 1:
             return Response(
-                response= json.dumps({"message": "player deleted", "name": f"{name}"}),
+                response= json.dumps({"message": f"{name} deleted"}),
                 status=200,
                 mimetype="application/json"
             )
@@ -610,7 +612,7 @@ def delete_player_name(name):
     except Exception as ex:
         print(ex)
         return Response(
-            response= json.dumps({"message": "player not deleted"}),
+            response= json.dumps({"message": f"{name} not deleted"}),
             status=500,
             mimetype="application/json"
         )
